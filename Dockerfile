@@ -1,6 +1,8 @@
 FROM python:3.7.3-alpine3.10
 MAINTAINER samuel.shannon@flexential.com
 
+WORKDIR /root
+
 ENV USERNAME "username"
 ENV HOSTNAME "10.0.0.1"
 ENV PASSWORD "password"
@@ -21,4 +23,4 @@ COPY example.json /example.json
 
 RUN apk del .build-deps
 
-CMD python3 /dynamic.py --hostname $HOSTNAME --username $USERNAME --password $PASSWORD --file $FILENAME --loop
+CMD nohup python3 /dynamic.py --hostname $HOSTNAME --username $USERNAME --password $PASSWORD --file $FILENAME &
