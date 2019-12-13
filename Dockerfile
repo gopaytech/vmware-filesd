@@ -7,6 +7,7 @@ ENV USERNAME "username"
 ENV HOSTNAME "10.0.0.1"
 ENV PASSWORD "password"
 ENV FILENAME "output.json"
+ENV LOOP "True"
 
 RUN apk update && apk add --virtual .build-deps curl git gcc musl-dev libffi-dev libxml2-dev libxslt-dev
 RUN apk add libressl-dev py3-lxml py3-cryptography
@@ -23,4 +24,4 @@ COPY example.json /example.json
 
 RUN apk del .build-deps
 
-CMD nohup python3 /dynamic.py --hostname $HOSTNAME --username $USERNAME --password $PASSWORD --file $FILENAME &
+CMD nohup python3 /dynamic.py --hostname $HOSTNAME --username $USERNAME --password $PASSWORD --file $FILENAME --loop $LOOP &
