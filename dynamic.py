@@ -273,7 +273,7 @@ def main():
     parser.add_argument("-f", "--file", dest="filename",
                         help="write report to FILE", metavar="FILE")
     parser.add_argument("-l", "--loop", dest="loop",
-                        type=str_to_bool, nargs='?', const=True, default=True)
+                        help="loop over and over", action='store_true')
 
     args = parser.parse_args()
 

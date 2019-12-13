@@ -24,4 +24,4 @@ COPY example.json /opt/example.json
 
 RUN apk del .build-deps
 
-CMD nohup python3 /opt/dynamic.py --hostname $HOSTNAME --username $USERNAME --password $PASSWORD --file $FILENAME --loop $LOOP &
+CMD nohup python3 /opt/dynamic.py --hostname $HOSTNAME --username $USERNAME --password $PASSWORD --file $FILENAME --loop &
