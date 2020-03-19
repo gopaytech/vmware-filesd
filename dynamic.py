@@ -71,6 +71,7 @@ class VMwareInventory:
         self.validate_certs = validate_certs
         self.content = None
         self.rest_content = None
+        self.output_filename = output_filename
         self.hostlist = HostList(output_filename)
 
     def _login(self):
@@ -236,7 +237,7 @@ class VMwareInventory:
                     continue
                 
                 del self.hostlist
-                self.hostlist = HostList(output_filename)
+                self.hostlist = HostList(self.output_filename)
 
                 if not self.hostlist.host_exists(vm_obj.obj.config.uuid):
                     vm_mo_id = vm_obj.obj._GetMoId()
