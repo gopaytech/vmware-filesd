@@ -1,6 +1,7 @@
 import atexit
 import ssl
 import json
+import time
 
 import requests
 from pyVim import connect
@@ -113,7 +114,6 @@ class VMwareInventory:
             raise Exception("Unknown error while connecting to vCenter or ESXi API at %s:%s" % (
                 self.hostname, self.port))
 
-        atexit.register(connect.Disconnect, service_instance)
         return service_instance.RetrieveContent()
 
     def do_login(self):
@@ -234,6 +234,9 @@ class VMwareInventory:
                 if not vm_obj.obj.config:
                     # Sometime orphaned VMs return no configurations
                     continue
+                
+                del self.hostlist
+                self.hostlist = HostList(output_filename)
 
                 if not self.hostlist.host_exists(vm_obj.obj.config.uuid):
                     vm_mo_id = vm_obj.obj._GetMoId()
@@ -278,13 +281,19 @@ def main():
     args = parser.parse_args()
 
     while True:
+        tmppath = os.path(args.filename) + "tmp.out"
         vmware = VMwareInventory(
-            args.hostname, args.username, args.password, "443", args.filename, False, True)
+            args.hostname, args.username, args.password, "443", tmppath, False, True)
         vmware.do_login()
         vmware.populate()
         vmware.hostlist.prometheus_output()
+        if os.path.exists(args.filename):
+            os.remove(args.filename)
+        os.rename(tmppath, args.filename)
+        print('Run finished: {}'.format(time.ctime))
         if args.loop == False:
             break
+        time.sleep(300)
 
 
 if __name__ == '__main__':
