@@ -6,7 +6,7 @@ import requests
 from pyVim import connect
 from pyVmomi import vim, vmodl
 from argparse import ArgumentParser
-import os 
+import os
 
 from com.vmware.vapi.std_client import DynamicID
 from vmware.vapi.vsphere.client import create_vsphere_client
@@ -32,12 +32,12 @@ class HostList:
         for host in self.hosts:
             x = {
                 "targets": [host.hostname],
-                "labels" : host.tags
+                "labels": host.tags
             }
             output.append(x)
 
         if os.path.exists(self.output_filename):
-                os.remove(self.output_filename)
+            os.remove(self.output_filename)
 
         with open(self.output_filename, 'w') as f:
             json.dump(output, f)
@@ -223,7 +223,8 @@ class VMwareInventory:
             cat_info[cat_obj.id] = cat_obj.name
         for tag in tags:
             tag_obj = tag_svc.get(tag)
-            tags_info[tag_obj.id] = dict(name=tag_obj.name,category=cat_info[tag_obj.category_id])
+            tags_info[tag_obj.id] = dict(
+                name=tag_obj.name, category=cat_info[tag_obj.category_id])
 
         for vm_obj in objects:
             for vm_obj_property in vm_obj.propSet:
@@ -240,10 +241,10 @@ class VMwareInventory:
                         type='VirtualMachine', id=vm_mo_id)
                     attached_tags = tag_association.list_attached_tags(
                         vm_dynamic_id)
-                    
+
                     if not vm_obj.obj.guest or not vm_obj.obj.guest.ipAddress:
                         continue
-                    
+
                     host_ip = vm_obj.obj.guest.ipAddress
                     if host_ip is None:
                         continue
@@ -252,7 +253,8 @@ class VMwareInventory:
                         vm_obj.obj.config.uuid, vm_obj_property.val, host_ip)
 
                     for tag_id in attached_tags:
-                        current_host.add_values(tags_info[tag_id]['category'], tags_info[tag_id]['name'])
+                        current_host.add_values(
+                            tags_info[tag_id]['category'], tags_info[tag_id]['name'])
 
                     self.hostlist.add_host(current_host)
         return
@@ -276,12 +278,14 @@ def main():
     args = parser.parse_args()
 
     while True:
-        vmware = VMwareInventory(args.hostname, args.username, args.password, "443", args.filename, False, True)
+        vmware = VMwareInventory(
+            args.hostname, args.username, args.password, "443", args.filename, False, True)
         vmware.do_login()
         vmware.populate()
         vmware.hostlist.prometheus_output()
         if args.loop == False:
             break
+
 
 if __name__ == '__main__':
     main()
