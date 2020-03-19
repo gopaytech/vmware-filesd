@@ -107,9 +107,6 @@ class VMwareInventory:
             # Request is malformed
             raise Exception("Failed to get a response from server %s:%s as "
                             "request is malformed: %s" % (self.hostname, self.port, e.msg))
-        except Exception as e:
-            raise Exception("Unknown error while connecting to vCenter or ESXi API at %s:%s : %s" % (
-                self.hostname, self.port, e))
 
         if service_instance is None:
             raise Exception("Unknown error while connecting to vCenter or ESXi API at %s:%s" % (
