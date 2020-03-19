@@ -227,6 +227,10 @@ class VMwareInventory:
             tags_info[tag_obj.id] = dict(
                 name=tag_obj.name, category=cat_info[tag_obj.category_id])
 
+
+        del self.hostlist
+        self.hostlist = HostList(self.output_filename)
+        
         for vm_obj in objects:
             for vm_obj_property in vm_obj.propSet:
                 # VMware does not provide a way to uniquely identify VM by its name
@@ -236,8 +240,7 @@ class VMwareInventory:
                     # Sometime orphaned VMs return no configurations
                     continue
                 
-                del self.hostlist
-                self.hostlist = HostList(self.output_filename)
+                
 
                 if not self.hostlist.host_exists(vm_obj.obj.config.uuid):
                     vm_mo_id = vm_obj.obj._GetMoId()
@@ -288,8 +291,6 @@ def main():
         vmware.do_login()
         vmware.populate()
         vmware.hostlist.prometheus_output()
-        if os.path.exists(args.filename):
-            os.remove(args.filename)
         os.rename(tmppath, args.filename)
         print('Run finished: {}'.format(time.ctime))
         if args.loop == False:
