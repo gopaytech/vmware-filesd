@@ -281,7 +281,7 @@ def main():
     args = parser.parse_args()
 
     while True:
-        tmppath = os.path(args.filename) + "tmp.out"
+        tmppath = "{}/tmp.out".format(os.path(args.filename))
         vmware = VMwareInventory(
             args.hostname, args.username, args.password, "443", tmppath, False, True)
         vmware.do_login()
