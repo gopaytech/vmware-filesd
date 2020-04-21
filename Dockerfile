@@ -1,5 +1,5 @@
 FROM python:3.7.3-alpine3.10
-MAINTAINER samuel.shannon@flexential.com
+MAINTAINER david.leonard@flexential.com
 
 WORKDIR /opt
 
@@ -18,10 +18,11 @@ RUN pip3 --version
 
 RUN pip3 install --upgrade pip setuptools
 RUN pip3 install --upgrade git+https://github.com/vmware/vsphere-automation-sdk-python.git
+RUN pip3 install --upgrade click
 
-COPY dynamic.py /opt/dynamic.py
-COPY example.json /opt/example.json
+COPY vmconnection.py /opt/vmconnection.py
+COPY main.py /opt/main.py
 
 RUN apk del .build-deps
 
-CMD python3 /opt/dynamic.py --hostname $HOSTNAME --username $USERNAME --password $PASSWORD --file $FILENAME --loop
+CMD python3 /opt/main.py --hostname $HOSTNAME --username $USERNAME --password $PASSWORD --file $FILENAME --loop
