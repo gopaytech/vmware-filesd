@@ -1,4 +1,4 @@
-FROM python:3.7.3-alpine3.10
+FROM python:3.8.6-alpine3.12
 MAINTAINER david.leonard@flexential.com
 
 WORKDIR /opt
@@ -8,6 +8,8 @@ ENV HOSTNAME "10.0.0.1"
 ENV PASSWORD "password"
 ENV FILENAME "output.json"
 ENV LOOP "True"
+ENV NOTLS "False"
+ENV FILTER ""
 
 RUN apk update && apk add --virtual .build-deps curl git gcc musl-dev libffi-dev libxml2-dev libxslt-dev
 RUN apk add libressl-dev py3-lxml py3-cryptography
@@ -25,4 +27,4 @@ COPY main.py /opt/main.py
 
 RUN apk del .build-deps
 
-CMD python3 /opt/main.py --hostname $HOSTNAME --username $USERNAME --password $PASSWORD --file $FILENAME --loop
+CMD python3 /opt/main.py --hostname $HOSTNAME --username $USERNAME --password $PASSWORD --output $FILENAME --loop $LOOP --notsl $NOTLS --filter $FILTER
