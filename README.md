@@ -15,7 +15,6 @@ spec:
   containers:
     - name: vmware-filesd
       image: gopaytech/vmware-filesd:latest
-      imagePullPolicy: Never
       env:
         - name: HOSTNAME
           value: "10.0.0.1"
@@ -96,4 +95,4 @@ Prometheus will read this output as a file discovery. It can be imported and rel
 kubectl create secret generic additional-scrape-configs --from-file=prometheus-additional.yaml
 ```
 
-It can also be called from the commandline directly: `python3 dynamic.py --hostname $HOSTNAME --username $USERNAME --password $PASSWORD --output $OUTPUT --loop --notls --filter "$FILTER"`
+It can also be called from the commandline directly: `python3 main.py --hostname $HOSTNAME --username $USERNAME --password $PASSWORD --output $OUTPUT --loop --notls --filter "$FILTER"`
