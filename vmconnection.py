@@ -8,6 +8,7 @@ import pprint
 import requests
 import urllib3
 import ast
+import re
 
 
 class Host:
@@ -21,6 +22,9 @@ class Host:
         self.tags["name"] = hostname
 
     def add_values(self, key, value):
+        key = re.sub(r"[^\w\s]", '', key)
+        key = re.sub(r"\s+", '_', key)
+        key = key.lower()
         self.tags[key] = value
 
     def get_hostname(self):

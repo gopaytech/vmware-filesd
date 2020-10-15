@@ -1,16 +1,6 @@
 FROM python:3.8.6-alpine3.12
 MAINTAINER david.leonard@flexential.com
 
-WORKDIR /opt
-
-ENV USERNAME "username"
-ENV HOSTNAME "10.0.0.1"
-ENV PASSWORD "password"
-ENV FILENAME "output.json"
-ENV LOOP "True"
-ENV NOTLS "False"
-ENV FILTER ""
-
 RUN apk update && apk add --virtual .build-deps curl git gcc musl-dev libffi-dev libxml2-dev libxslt-dev
 RUN apk add libressl-dev py3-lxml py3-cryptography
 
@@ -22,9 +12,18 @@ RUN pip3 install --upgrade pip setuptools
 RUN pip3 install --upgrade git+https://github.com/vmware/vsphere-automation-sdk-python.git
 RUN pip3 install --upgrade click
 
+RUN apk del .build-deps
+
+WORKDIR /opt
+
 COPY vmconnection.py /opt/vmconnection.py
 COPY main.py /opt/main.py
 
-RUN apk del .build-deps
+ENV USERNAME "username"
+ENV HOSTNAME "10.0.0.1"
+ENV PASSWORD "password"
+ENV OUTPUT "output.json"
+ENV FILTER "{}"
 
-CMD python3 /opt/main.py --hostname $HOSTNAME --username $USERNAME --password $PASSWORD --output $FILENAME --loop $LOOP --notsl $NOTLS --filter $FILTER
+
+CMD python3 /opt/main.py --hostname $HOSTNAME --username $USERNAME --password $PASSWORD --output $OUTPUT --loop --notls --filter "$FILTER"

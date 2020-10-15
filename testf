@@ -1,1 +1,0 @@
-[{"targets": ["folder"], "labels": {"address": "10.0.3.10", "uuid": "4203e107-91d9-6e01-c3b7-feadd33fd09f"}}, {"targets": ["hass"], "labels": {"address": "172.30.32.1", "uuid": "42034b12-d7ce-17f6-71b6-b7c07d59191e", "Global Tags": "OS"}}, {"targets": ["vCenter"], "labels": {"address": "10.0.3.5", "uuid": "564df3a9-7f15-0c21-1f07-61820f87d4c4"}}]
