@@ -4,90 +4,96 @@ This repository utilizes code from Ansible VMware inventory and has been modifie
 
 An example of how to use it for Promethues operator:
 
-```apiVersion: monitoring.coreos.com/v1
+```yaml
+apiVersion: monitoring.coreos.com/v1
 kind: Prometheus
 metadata:
   labels:
-    prometheus: monitoring-prometheus-filesd
-  name: monitoring-prometheus-filesd
+    prometheus: po-prometheus-vmware-filesd
+  name: po-prometheus-vmware-filesd
 spec:
   containers:
-    - name: file-sd
-      image: vmware-filesd
+    - name: vmware-filesd
+      image: gopaytech/vmware-filesd:latest
+      imagePullPolicy: Never
       env:
         - name: HOSTNAME
-          value: ""
+          value: "10.0.0.1"
         - name: USERNAME
-          value: ""
+          value: "vmware-user"
         - name: PASSWORD
-          value: ""
-        - name: FILENAME
-          value: "/opt/config/output.json"
+          value: "vmware-password"
+        - name: OUTPUT
+          value: "/opt/config/vmware-filesd.json"
+        - name: FILTER
+          value: '{"environment": "staging"}'
       volumeMounts:
-      - name: config-out
-        mountPath: /opt/config
-        readOnly: false
+        - name: config-out
+          mountPath: /opt/config
+          readOnly: false
   securityContext:
     fsGroup: 2000
     runAsNonRoot: true
     runAsUser: 1000
-  serviceAccountName: monitoring-prometheus-oper-prometheus
+  serviceAccountName: po-prometheus-operator-prometheus
   serviceMonitorNamespaceSelector: {}
   serviceMonitorSelector:
     matchLabels:
-      release: filesd-test
-  replicas: 1
-  alerting:
-    alertmanagers:
-    - namespace: default
-      name: monitoring-prometheus-oper-alertmanager
-      port: web
+      release: vmware-filesd
   additionalScrapeConfigs:
-    name: monitoring-prometheus-oper-prometheus-scrape-confg
-    key: additional-scrape-configs.yaml
+    name: additional-scrape-configs
+    key: prometheus-additional.yaml
 ```
 
 Example output
-```
+```json
 [
     {
         "targets": [
-            "example_host_2"
+            "10.0.1.1"
         ],
-        "labels": [
-            {
-                "tag": "QA"
-            },
-            {
-                "tag": "Linux"
-            },
-            {
-                "tag": "Tomcat"
-            },
-            {
-                "tag": "NFS"
-            },
-            {
-                "address": "192.168.1.245"
-            }
-        ]
+        "labels": {
+            "name": "host1",
+            "address": "10.0.1.1",
+            "description": "sample host",
+            "component": "pg",
+            "environment": "staging"
+        }
     }
 ]
 ```
 
 Prometheus will read this output as a file discovery. It can be imported and relabled like the following:
-```
-- job_name: 'vmware_filesd'
-  scrape_interval: 30s
+```yaml
+- job_name: "vmware/node-exporter"
   file_sd_configs:
     - files:
-        - /etc/prometheus/config_out/output.json
+        - /etc/prometheus/config_out/vmware-filesd.json
   relabel_configs:
-  - source_labels: [__address__]
-    target_label: instance
-  - source_labels: [address]
-    target_label:  __address__
-    replacement:   '${1}:9100'
+    - source_labels: [__address__]
+      target_label: instance
+    - source_labels: [__address__]
+      target_label: __address__
+      replacement: "${1}:9100"
+
+- job_name: "vmware/pg-exporter"
+  file_sd_configs:
+    - files:
+        - /etc/prometheus/config_out/vmware-filesd.json
+  relabel_configs:
+    - source_labels: [__address__]
+      target_label: instance
+    - source_labels: [component]
+      regex: ^(?!(pg|postgres)$).*
+      action: drop
+    - source_labels: [__address__, component]
+      target_label: __address__
+      regex: "(.*);(pg)"
+      replacement: "${1}:9187"
 ```
 
-It can also be called from the commandline directly: `python3 dynamic.py --hostname $HOSTNAME --username $USERNAME --password $PASSWORD --file $FILENAME --loop`
+```bash
+kubectl create secret generic additional-scrape-configs --from-file=prometheus-additional.yaml
+```
+
+It can also be called from the commandline directly: `python3 dynamic.py --hostname $HOSTNAME --username $USERNAME --password $PASSWORD --output $OUTPUT --loop --notls --filter "$FILTER"`
